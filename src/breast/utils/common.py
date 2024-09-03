@@ -7,8 +7,10 @@ import joblib
 from ensure import ensure_annotations
 from box import ConfigBox
 from pathlib import Path
+import tensorflow as tf
 from typing import Any
 import base64
+from tensorflow.keras import layers
 
 @ensure_annotations
 def read_yaml(path_to_yaml: Path) -> ConfigBox:
@@ -133,3 +135,23 @@ def decodeImage(imgstring, fileName):
 def encodeImageIntoBase64(croppedImagePath):
     with open(croppedImagePath, "rb") as f:
         return base64.b64encode(f.read())
+    
+def modify_output_layer(model, num_classes):
+    """
+    Modifies the output layer of the model to match the number of classes.
+    
+    Parameters:
+    model (tf.keras.Model): The pre-trained model.
+    num_classes (int): The number of classes in the dataset.
+
+    Returns:
+    tf.keras.Model: The modified model with the correct output layer.
+    """
+    # Set a unique name for the new output layer
+    x = model.layers[-2].output  # Get the output from the penultimate layer
+    new_output = layers.Dense(num_classes, activation='softmax', name="output_dense")(x)
+    
+    # Create a new model
+    model = tf.keras.Model(inputs=model.input, outputs=new_output)
+    
+    return model
