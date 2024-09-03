@@ -1,7 +1,7 @@
 import os
 from box.exceptions import BoxValueError
 import yaml
-from src.breast import logger
+from breast import logger
 import json
 import joblib
 from ensure import ensure_annotations
@@ -124,18 +124,19 @@ def get_size(path: Path) -> str:
     size_in_kb = round(os.path.getsize(path)/1024)
     return f"~ {size_in_kb} KB"
 
-
+@ensure_annotations
 def decodeImage(imgstring, fileName):
     imgdata = base64.b64decode(imgstring)
     with open(fileName, 'wb') as f:
         f.write(imgdata)
         f.close()
 
-
+@ensure_annotations
 def encodeImageIntoBase64(croppedImagePath):
     with open(croppedImagePath, "rb") as f:
         return base64.b64encode(f.read())
-    
+
+@ensure_annotations  
 def modify_output_layer(model, num_classes):
     """
     Modifies the output layer of the model to match the number of classes.
